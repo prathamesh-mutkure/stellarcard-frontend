@@ -1,5 +1,9 @@
 import axios from "axios";
-import type { User, LoginResponse, ApiResponse } from "../types";
+import type {
+  AuthResponse,
+  DashboardResponse,
+  RefreshKycResponse,
+} from "../types";
 
 const API_BASE_URL = "http://localhost:3000";
 
@@ -36,39 +40,33 @@ export const authAPI = {
     fullName: string,
     email: string,
     password: string
-  ): Promise<LoginResponse> => {
-    const response = await api.post<ApiResponse<LoginResponse>>(
-      "/auth/signup",
-      {
-        fullName,
-        email,
-        password,
-      }
-    );
-    return response.data.data!;
+  ): Promise<AuthResponse> => {
+    const response = await api.post<AuthResponse>("/auth/signup", {
+      fullName,
+      email,
+      password,
+    });
+    return response.data;
   },
 
-  signin: async (email: string, password: string): Promise<LoginResponse> => {
-    const response = await api.post<ApiResponse<LoginResponse>>(
-      "/auth/signin",
-      {
-        email,
-        password,
-      }
-    );
-    return response.data.data!;
+  signin: async (email: string, password: string): Promise<AuthResponse> => {
+    const response = await api.post<AuthResponse>("/auth/signin", {
+      email,
+      password,
+    });
+    return response.data;
   },
 };
 
 export const userAPI = {
-  getDashboard: async (): Promise<User> => {
-    const response = await api.get<ApiResponse<User>>("/user/dashboard");
-    return response.data.data!;
+  getDashboard: async (): Promise<DashboardResponse> => {
+    const response = await api.get<DashboardResponse>("/user/dashboard");
+    return response.data;
   },
 
-  refreshKyc: async (): Promise<User> => {
-    const response = await api.post<ApiResponse<User>>("/user/refresh-kyc");
-    return response.data.data!;
+  refreshKyc: async (): Promise<RefreshKycResponse> => {
+    const response = await api.post<RefreshKycResponse>("/user/refresh-kyc");
+    return response.data;
   },
 };
 

@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/auth-context";
 import { CreditCard, Eye, EyeOff } from "lucide-react";
 import { LoadingSpinner } from "../components/LoadingSpinner";
+import { toast } from "sonner";
 
 export const SignInPage: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -42,8 +43,9 @@ export const SignInPage: React.FC = () => {
     try {
       await login(formData.email, formData.password);
       navigate("/dashboard");
-    } catch (error) {
+    } catch (error: any) {
       // Error is handled in the context
+      toast.error(error.response?.data?.message || "Sign in failed");
     }
   };
 

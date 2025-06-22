@@ -2,7 +2,7 @@ import type React from "react";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
 
 interface StatusBadgeProps {
-  status: "pending" | "completed" | "rejected";
+  status: string | "pending" | "completed" | "rejected";
   label: string;
 }
 

@@ -35,7 +35,8 @@ export const Dashboard: React.FC = () => {
     }
   };
 
-  const isVerified = user?.kycStatus === "completed" && user?.tosAccepted;
+  const isVerified =
+    user?.kycStatus === "approved" && user?.tosStatus === "approved";
 
   if (!user) {
     return (
@@ -103,7 +104,7 @@ export const Dashboard: React.FC = () => {
               <StatusBadge
                 status={user.kycStatus}
                 label={
-                  user.kycStatus === "completed"
+                  user.kycStatus === "approved"
                     ? "Completed"
                     : user.kycStatus === "rejected"
                     ? "Rejected"
@@ -120,15 +121,15 @@ export const Dashboard: React.FC = () => {
                 </p>
               </div>
               <StatusBadge
-                status={user.tosAccepted ? "completed" : "pending"}
-                label={user.tosAccepted ? "Accepted" : "Pending"}
+                status={user.tosStatus === "approved" ? "completed" : "pending"}
+                label={user.tosStatus === "approved" ? "Accepted" : "Pending"}
               />
             </div>
           </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4">
-            {user.kycStatus !== "completed" && user.kycLink && (
+            {user.kycStatus !== "approved" && user.kycLink && (
               <a
                 href={user.kycLink}
                 target="_blank"
@@ -140,7 +141,7 @@ export const Dashboard: React.FC = () => {
               </a>
             )}
 
-            {!user.tosAccepted && user.tosLink && (
+            {user.tosStatus !== "approved" && user.tosLink && (
               <a
                 href={user.tosLink}
                 target="_blank"
@@ -190,7 +191,7 @@ export const Dashboard: React.FC = () => {
                       Current Balance
                     </span>
                     <span className="text-lg font-semibold text-gray-900">
-                      ${user.balance?.toFixed(2) || "0.00"} USDC
+                      ${"0.00"} USDC
                     </span>
                   </div>
                 </div>
@@ -207,7 +208,7 @@ export const Dashboard: React.FC = () => {
                     Your Card
                   </h3>
                 </div>
-                {user.cardIssued ? (
+                {!user.id ? (
                   <div>
                     <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-4 text-white mb-4">
                       <div className="flex justify-between items-start">

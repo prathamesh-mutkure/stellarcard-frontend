@@ -43,9 +43,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       const response = await authAPI.signin(email, password);
-      setToken(response.token);
-      setUser(response.user);
-      localStorage.setItem("token", response.token);
+      setToken(response.access_token);
+      setUser({
+        ...response.user,
+        kycLink: "",
+        kycStatus: "pending",
+        tosLink: "",
+        tosStatus: "pending",
+        isVerified: false,
+        createdAt: new Date(),
+      });
+      localStorage.setItem("token", response.access_token);
       toast.success("Successfully signed in!");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Sign in failed");
@@ -59,9 +67,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setLoading(true);
       const response = await authAPI.signup(fullName, email, password);
-      setToken(response.token);
-      setUser(response.user);
-      localStorage.setItem("token", response.token);
+      setToken(response.access_token);
+      setUser({
+        ...response.user,
+        kycLink: "",
+        kycStatus: "pending",
+        tosLink: "",
+        tosStatus: "pending",
+        isVerified: false,
+        createdAt: new Date(),
+      });
+      localStorage.setItem("token", response.access_token);
       toast.success("Account created successfully!");
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Sign up failed");
@@ -81,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const refreshUserData = async () => {
     try {
       const userData = await userAPI.getDashboard();
-      setUser(userData);
+      setUser(userData.user);
     } catch (error) {
       console.error("Failed to refresh user data:", error);
     }

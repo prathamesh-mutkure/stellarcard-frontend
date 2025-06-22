@@ -2,12 +2,17 @@ export interface User {
   id: string;
   fullName: string;
   email: string;
-  kycStatus: "pending" | "completed" | "rejected";
-  tosAccepted: boolean;
-  kycLink?: string;
-  tosLink?: string;
-  cardIssued: boolean;
-  balance?: number;
+  kycLink: string | null;
+  tosLink: string | null;
+  kycStatus:
+    | "not_started"
+    | "under_review"
+    | "incomplete"
+    | "approved"
+    | "rejected";
+  tosStatus: "pending" | "approved";
+  isVerified: boolean;
+  createdAt: Date;
 }
 
 export interface AuthContextType {
@@ -26,7 +31,33 @@ export interface ApiResponse<T> {
   message?: string;
 }
 
-export interface LoginResponse {
-  token: string;
-  user: User;
+export interface AuthResponse {
+  access_token: string;
+  user: {
+    id: string;
+    fullName: string;
+    email: string;
+  };
 }
+
+export type DashboardResponse = {
+  user: {
+    id: string;
+    fullName: string;
+    email: string;
+    kycLink: string | null;
+    tosLink: string | null;
+    kycStatus: string;
+    tosStatus: string;
+    isVerified: boolean;
+    createdAt: Date;
+  };
+  canAccessFullFeatures: boolean;
+};
+
+export type RefreshKycResponse = {
+  kycStatus: string;
+  tosStatus: string;
+  isVerified: boolean;
+  error?: undefined;
+};
