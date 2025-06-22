@@ -6,10 +6,7 @@ import StellarSdk from "stellar-sdk";
 import {
   isConnected,
   getAddress,
-  signAuthEntry,
   signTransaction,
-  signBlob,
-  addToken,
   requestAccess,
   setAllowed,
   isAllowed,
@@ -22,8 +19,10 @@ const USDC_ASSET = {
 };
 
 function DepositComp({ address }: { address: LiquidationAddress | null }) {
-  const [recipientAddress, setRecipientAddress] = useState("");
-  const [amount, setAmount] = useState("");
+  const [recipientAddress, setRecipientAddress] = useState(
+    address?.address ?? ""
+  );
+  const [amount, setAmount] = useState("0.1");
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState("");
   const [error, setError] = useState("");
@@ -126,15 +125,10 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
     }
   };
 
-  // Real Stellar SDK implementation
   const createUSDCTransaction = async () => {
-    // Use mainnet server
     const server = new StellarSdk.Server("https://horizon.stellar.org");
-
-    // Load source account from Freighter
     const sourceAccount = await server.loadAccount(userPublicKey);
 
-    // Build transaction
     const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
       fee: StellarSdk.BASE_FEE,
       networkPassphrase: StellarSdk.Networks.PUBLIC,
@@ -146,28 +140,22 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
           amount: amount.toString(),
         })
       )
-      .addMemo(StellarSdk.Memo.text("USDC Deposit"))
+      .addMemo(StellarSdk.Memo.text(address?.blockchain_memo ?? "USDC Deposit"))
       .setTimeout(300)
       .build();
 
     // Convert to XDR for Freighter
     const transactionXDR = transaction.toXDR();
 
-    // Sign with Freighter
-    const signedTransactionXDR = await window.freighterApi.signTransaction(
-      transactionXDR,
-      {
-        networkPassphrase: StellarSdk.Networks.PUBLIC,
-      }
-    );
+    const signedTransactionXDR = await signTransaction(transactionXDR, {
+      networkPassphrase: StellarSdk.Networks.PUBLIC,
+    });
 
-    // Reconstruct signed transaction
     const signedTransaction = StellarSdk.TransactionBuilder.fromXDR(
       signedTransactionXDR,
       StellarSdk.Networks.PUBLIC
     );
 
-    // Submit to network
     const result = await server.submitTransaction(signedTransaction);
     return result;
   };
@@ -218,13 +206,25 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
         </div>
       )}
 
-      <button
-        onClick={handleDeposit}
-        disabled={!address || isLoading}
-        className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
-      >
-        Deposit Funds
-      </button>
+      {!isFreighterConnected && (
+        <button
+          onClick={connectFreighter}
+          disabled={!address || isLoading}
+          className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
+        >
+          Connect Wallet
+        </button>
+      )}
+
+      {isFreighterConnected && (
+        <button
+          onClick={handleDeposit}
+          disabled={!address || isLoading}
+          className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors"
+        >
+          Deposit Funds
+        </button>
+      )}
     </div>
   );
 }
