@@ -3,6 +3,17 @@ import { DollarSign } from "lucide-react";
 import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
 import StellarSdk from "stellar-sdk";
+import {
+  isConnected,
+  getAddress,
+  signAuthEntry,
+  signTransaction,
+  signBlob,
+  addToken,
+  requestAccess,
+  setAllowed,
+  isAllowed,
+} from "@stellar/freighter-api";
 
 // USDC asset details on Stellar
 const USDC_ASSET = {
@@ -24,43 +35,34 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
   }, []);
 
   const checkFreighterConnection = async () => {
-    if (typeof window !== "undefined" && window.freighterApi) {
-      try {
-        const isAllowed = await window.freighterApi.isAllowed();
-        if (isAllowed) {
-          const publicKey = await window.freighterApi.getPublicKey();
-          setUserPublicKey(publicKey);
-          setIsFreighterConnected(true);
-        }
-      } catch (err) {
-        console.log("Freighter not connected");
+    try {
+      let isAppAllowed = await isAllowed();
+
+      if (!isAppAllowed.isAllowed) {
+        isAppAllowed = await setAllowed();
       }
+
+      if (isAppAllowed.isAllowed) {
+        const { address } = await getAddress();
+        setUserPublicKey(address);
+        setIsFreighterConnected(true);
+      }
+    } catch (err) {
+      console.log("Freighter not connected");
     }
   };
 
   const connectFreighter = async () => {
-    if (!window.freighterApi) {
-      setError(
-        "Freighter wallet not found. Please install Freighter extension."
-      );
-
-      console.log(
-        "Freighter wallet not found. Please install Freighter extension"
-      );
-
-      return;
-    }
-
     try {
       setIsLoading(true);
-      const isAllowed = await window.freighterApi.isAllowed();
+      const isAppAllowed = await isAllowed();
 
-      if (!isAllowed) {
-        await window.freighterApi.requestAccess();
+      if (!isAppAllowed.isAllowed) {
+        await requestAccess();
       }
 
-      const publicKey = await window.freighterApi.getPublicKey();
-      setUserPublicKey(publicKey);
+      const { address } = await getAddress();
+      setUserPublicKey(address);
       setIsFreighterConnected(true);
       setError("");
     } catch (err) {
@@ -71,7 +73,6 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
   };
 
   const validateStellarAddress = (address: string) => {
-    // Basic Stellar address validation (starts with G and is 56 characters)
     const stellarRegex = /^G[A-Z2-7]{55}$/;
     return stellarRegex.test(address);
   };
@@ -80,10 +81,7 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
     setError("");
     setStatus("");
 
-    // Check Freighter connection
     if (!isFreighterConnected) {
-      //   setError("Please connect your Freighter wallet first");
-      //   return;
       await connectFreighter();
     }
 

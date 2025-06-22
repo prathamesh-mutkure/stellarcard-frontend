@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import type { CardResponse, LiquidationAddress } from "@/types";
 import QRCode from "react-qr-code";
 import DepositComp from "@/components/deposit";
+import CreditCardComp from "@/components/credit-card";
 
 export const Dashboard: React.FC = () => {
   const { user, logout, refreshUserData } = useAuth();
@@ -232,38 +233,14 @@ export const Dashboard: React.FC = () => {
                     Your Card
                   </h3>
                 </div>
+
                 {card ? (
-                  <div>
-                    <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-4 text-white mb-4">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="text-sm opacity-80">StellarCard</p>
-                          <p className="text-lg font-semibold">
-                            {card.cardNumber.replace(/.(?=.{4})/g, "*")}
-                          </p>
-                        </div>
-                        <CreditCard className="h-8 w-8" />
-                      </div>
-                      <div className="mt-4 flex justify-between">
-                        <div>
-                          <p className="text-xs opacity-80">CARDHOLDER</p>
-                          <p className="text-sm font-medium">"STELLAR CARD"</p>
-                        </div>
-                        <div>
-                          <p className="text-xs opacity-80">EXPIRES</p>
-                          <p className="text-sm font-medium">{`${card.expiryMonth}/${card.expiryYear}`}</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex space-x-2">
-                      <button className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
-                        Freeze Card
-                      </button>
-                      <button className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors">
-                        Card Settings
-                      </button>
-                    </div>
-                  </div>
+                  <CreditCardComp
+                    cardHolder={user.fullName}
+                    cardNumber={card.cardNumber}
+                    cvv={card.cvv}
+                    expiryDate={`${card.expiryMonth}/${card.expiryYear}`}
+                  />
                 ) : (
                   <div className="text-center">
                     <div className="bg-gray-100 rounded-lg p-8 mb-4">
@@ -275,7 +252,7 @@ export const Dashboard: React.FC = () => {
                       onClick={requestCard}
                       disabled={isCardLoading}
                     >
-                      Request Physical Card
+                      Issue Card
                     </button>
                   </div>
                 )}
