@@ -61,3 +61,18 @@ export type RefreshKycResponse = {
   isVerified: boolean;
   error?: undefined;
 };
+
+export type LiquidationAddress = {
+  id: string;
+  userId: string;
+  chain: string;
+  address: string;
+  createdAt: Date;
+  updatedAt: Date;
+  bridgeId: string;
+  currency: string;
+  destination_payment_rail: string;
+  destination_address: string;
+  destination_currency: string;
+  blockchain_memo: string | null;
+};

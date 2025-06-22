@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../contexts/auth-context";
 import { StatusBadge } from "../components/StatusBadge";
 import { LoadingSpinner } from "../components/LoadingSpinner";
@@ -17,10 +17,13 @@ import {
 } from "lucide-react";
 import { userAPI } from "../services/api";
 import { toast } from "sonner";
+import type { LiquidationAddress } from "@/types";
 
 export const Dashboard: React.FC = () => {
   const { user, logout, refreshUserData } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
+
+  const [address, setAddress] = useState<LiquidationAddress | null>(null);
 
   const handleRefreshKyc = async () => {
     try {
@@ -35,8 +38,22 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  const getAddress = async () => {
+    try {
+      const response = await userAPI.getWallets();
+      setAddress(response);
+    } catch (error) {
+      toast.error("Failed to fetch wallet address");
+      return null;
+    }
+  };
+
   const isVerified =
     user?.kycStatus === "approved" && user?.tosStatus === "approved";
+
+  useEffect(() => {
+    getAddress();
+  }, [isVerified]);
 
   if (!user) {
     return (
@@ -195,6 +212,17 @@ export const Dashboard: React.FC = () => {
                     </span>
                   </div>
                 </div>
+
+                {address && (
+                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
+                    <div className="flex justify-between items-center overflow-ellipsis overflow-hidden">
+                      <span className="text-sm font-semibold text-gray-900">
+                        {address.address}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
                 <button className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
                   Deposit Funds
                 </button>

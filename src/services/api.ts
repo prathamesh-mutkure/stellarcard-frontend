@@ -2,6 +2,7 @@ import axios from "axios";
 import type {
   AuthResponse,
   DashboardResponse,
+  LiquidationAddress,
   RefreshKycResponse,
 } from "../types";
 
@@ -66,6 +67,13 @@ export const userAPI = {
 
   refreshKyc: async (): Promise<RefreshKycResponse> => {
     const response = await api.post<RefreshKycResponse>("/user/refresh-kyc");
+    return response.data;
+  },
+
+  getWallets: async () => {
+    const response = await api.get<LiquidationAddress | null>(
+      "/bridge/address"
+    );
     return response.data;
   },
 };
