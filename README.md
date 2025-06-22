@@ -2,6 +2,9 @@
 
 A comprehensive digital wallet solution that bridges cryptocurrency and traditional payments by allowing users to deposit USDC on Stellar and receive a physical/virtual credit card for worldwide use.
 
+<img width="1624" alt="Screenshot 2025-06-22 at 15 49 49" src="https://github.com/user-attachments/assets/77267299-eea2-4fb3-8b96-9138f472b810" />
+
+
 ## 🌟 Features
 
 ### Core Functionality
@@ -67,3 +70,16 @@ A comprehensive digital wallet solution that bridges cryptocurrency and traditio
 ----
 
 **Built with ❤️ using Stellar, NestJS, and React**
+
+Customer (Prathamesh)
+ID - c474c9bb-d3cf-4c03-bbf5-aa0250c3a625
+
+Liquidation Address (Stellar to sol)
+ID - 43730bba-cb59-4475-af68-fcd4027e849a
+Address - GD5JCCUM7YXETOTK6SEYU3KXQX5OTHWVFN4SFKGQ5V2KKSYWBZUQWMWT
+
+Wallet (sol)
+ID - 01467555-bee1-48c7-ab17-e1a8b808ad19
+Address - 6z2i1RTRSYt5egd5UeUjKp7UH9B9LZ2r7r36yrT1iUy2
+
+Cards Enpoint - https://apidocs.bridge.xyz/reference/get_customers-customerid-card-accounts
