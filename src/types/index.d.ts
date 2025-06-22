@@ -76,3 +76,15 @@ export type LiquidationAddress = {
   destination_currency: string;
   blockchain_memo: string | null;
 };
+
+export type CardResponse = {
+  id: string;
+  cardNumber: string;
+  expiryMonth: number;
+  expiryYear: number;
+  cvv: string;
+  usdcBalance: number;
+  userId: string;
+  createdAt: Date;
+  updatedAt: Date;
+};

@@ -1,5 +1,6 @@
 import axios from "axios";
 import type {
+  CardResponse,
   AuthResponse,
   DashboardResponse,
   LiquidationAddress,
@@ -74,6 +75,16 @@ export const userAPI = {
     const response = await api.get<LiquidationAddress | null>(
       "/bridge/address"
     );
+    return response.data;
+  },
+
+  requestCard: async () => {
+    const response = await api.post<CardResponse>("/card");
+    return response.data;
+  },
+
+  getCard: async () => {
+    const response = await api.get<CardResponse | null>("/card");
     return response.data;
   },
 };

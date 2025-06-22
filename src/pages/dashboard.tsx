@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { userAPI } from "../services/api";
 import { toast } from "sonner";
-import type { LiquidationAddress } from "@/types";
+import type { CardResponse, LiquidationAddress } from "@/types";
 import QRCode from "react-qr-code";
 
 export const Dashboard: React.FC = () => {
@@ -25,6 +25,8 @@ export const Dashboard: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
 
   const [address, setAddress] = useState<LiquidationAddress | null>(null);
+  const [card, setCard] = useState<CardResponse | null>(null);
+  const [isCardLoading, setIsCardLoading] = useState(false);
 
   const handleRefreshKyc = async () => {
     try {
@@ -49,11 +51,38 @@ export const Dashboard: React.FC = () => {
     }
   };
 
+  const requestCard = async () => {
+    try {
+      setIsCardLoading(true);
+      const response = await userAPI.requestCard();
+      setCard(response);
+    } catch (error) {
+      toast.error("Failed to fetch wallet address");
+      return null;
+    } finally {
+      setIsCardLoading(false);
+    }
+  };
+
+  const getCard = async () => {
+    try {
+      setIsCardLoading(true);
+      const response = await userAPI.getCard();
+      setCard(response);
+    } catch (error) {
+      toast.error("Failed to fetch wallet address");
+      return null;
+    } finally {
+      setIsCardLoading(false);
+    }
+  };
+
   const isVerified =
     user?.kycStatus === "approved" && user?.tosStatus === "approved";
 
   useEffect(() => {
     getAddress();
+    getCard();
   }, [isVerified]);
 
   if (!user) {
@@ -255,14 +284,14 @@ export const Dashboard: React.FC = () => {
                     Your Card
                   </h3>
                 </div>
-                {!user.id ? (
+                {card ? (
                   <div>
                     <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg p-4 text-white mb-4">
                       <div className="flex justify-between items-start">
                         <div>
                           <p className="text-sm opacity-80">StellarCard</p>
                           <p className="text-lg font-semibold">
-                            **** **** **** 1234
+                            {card.cardNumber.replace(/.(?=.{4})/g, "*")}
                           </p>
                         </div>
                         <CreditCard className="h-8 w-8" />
@@ -270,13 +299,11 @@ export const Dashboard: React.FC = () => {
                       <div className="mt-4 flex justify-between">
                         <div>
                           <p className="text-xs opacity-80">CARDHOLDER</p>
-                          <p className="text-sm font-medium">
-                            {user.fullName.toUpperCase()}
-                          </p>
+                          <p className="text-sm font-medium">"STELLAR CARD"</p>
                         </div>
                         <div>
                           <p className="text-xs opacity-80">EXPIRES</p>
-                          <p className="text-sm font-medium">12/28</p>
+                          <p className="text-sm font-medium">{`${card.expiryMonth}/${card.expiryYear}`}</p>
                         </div>
                       </div>
                     </div>
@@ -295,7 +322,11 @@ export const Dashboard: React.FC = () => {
                       <CreditCard className="h-12 w-12 text-gray-400 mx-auto mb-2" />
                       <p className="text-gray-600">No card issued yet</p>
                     </div>
-                    <button className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">
+                    <button
+                      className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                      onClick={requestCard}
+                      disabled={isCardLoading}
+                    >
                       Request Physical Card
                     </button>
                   </div>
