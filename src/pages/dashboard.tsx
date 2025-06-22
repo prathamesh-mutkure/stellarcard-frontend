@@ -19,6 +19,7 @@ import { userAPI } from "../services/api";
 import { toast } from "sonner";
 import type { CardResponse, LiquidationAddress } from "@/types";
 import QRCode from "react-qr-code";
+import DepositComp from "@/components/deposit";
 
 export const Dashboard: React.FC = () => {
   const { user, logout, refreshUserData } = useAuth();
@@ -221,60 +222,7 @@ export const Dashboard: React.FC = () => {
           ) : (
             <>
               {/* Deposit USDC Section */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <div className="flex items-center mb-4">
-                  <DollarSign className="h-6 w-6 text-green-600 mr-2" />
-                  <h3 className="text-lg font-semibold text-gray-900">
-                    Deposit USDC
-                  </h3>
-                </div>
-                <p className="text-gray-600 mb-4">
-                  Add funds to your account by depositing USDC or XLM
-                  stablecoins.
-                </p>
-
-                <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">
-                      Current Balance
-                    </span>
-                    <span className="text-lg font-semibold text-gray-900">
-                      ${"0.00"} USDC
-                    </span>
-                  </div>
-                </div>
-
-                {address && (
-                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    <div className="flex justify-between items-center overflow-ellipsis overflow-hidden">
-                      <span className="text-xs font-semibold text-gray-900">
-                        {address.address}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {address?.blockchain_memo && (
-                  <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Memo</span>
-                      <span className="text-lg font-semibold text-gray-900">
-                        {address?.blockchain_memo}
-                      </span>
-                    </div>
-                  </div>
-                )}
-
-                {address && (
-                  <div className="flex justify-between items-center w-full mx-auto mb-4">
-                    <QRCode value={address.address} />
-                  </div>
-                )}
-
-                <button className="w-full bg-green-600 text-white py-2 px-4 rounded-lg hover:bg-green-700 transition-colors">
-                  Deposit Funds
-                </button>
-              </div>
+              <DepositComp address={address} />
 
               {/* Card Management */}
               <div className="bg-white rounded-lg shadow-sm p-6">
