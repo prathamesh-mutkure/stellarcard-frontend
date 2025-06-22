@@ -47,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser({
         ...response.user,
         kycLink: "",
-        kycStatus: "pending",
+        kycStatus: "not_started",
         tosLink: "",
         tosStatus: "pending",
         isVerified: false,
@@ -71,7 +71,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setUser({
         ...response.user,
         kycLink: "",
-        kycStatus: "pending",
+        kycStatus: "not_started",
         tosLink: "",
         tosStatus: "pending",
         isVerified: false,
@@ -97,7 +97,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const refreshUserData = async () => {
     try {
       const userData = await userAPI.getDashboard();
-      setUser(userData.user);
+      setUser({ ...userData.user });
     } catch (error) {
       console.error("Failed to refresh user data:", error);
     }

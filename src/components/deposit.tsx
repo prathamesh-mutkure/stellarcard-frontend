@@ -20,8 +20,8 @@ const USDC_ASSET = {
 function DepositComp({ address }: { address: LiquidationAddress | null }) {
   const [amount, setAmount] = useState("0.1");
   const [isLoading, setIsLoading] = useState(false);
-  const [status, setStatus] = useState("");
-  const [error, setError] = useState("");
+  const [, setStatus] = useState("");
+  const [, setError] = useState("");
   const [isFreighterConnected, setIsFreighterConnected] = useState(false);
   const [userPublicKey, setUserPublicKey] = useState("");
 
@@ -60,7 +60,7 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
       setUserPublicKey(address);
       setIsFreighterConnected(true);
       setError("");
-    } catch (err) {
+    } catch (err: any) {
       setError("Failed to connect to Freighter: " + err.message);
     } finally {
       setIsLoading(false);
@@ -127,7 +127,7 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
 
       // Reset form
       setAmount("");
-    } catch (err) {
+    } catch (err: any) {
       setError("Transaction failed: " + err.message);
     } finally {
       setIsLoading(false);

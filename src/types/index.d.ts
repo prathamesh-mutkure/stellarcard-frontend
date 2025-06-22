@@ -47,8 +47,13 @@ export type DashboardResponse = {
     email: string;
     kycLink: string | null;
     tosLink: string | null;
-    kycStatus: string;
-    tosStatus: string;
+    kycStatus:
+      | "not_started"
+      | "under_review"
+      | "incomplete"
+      | "approved"
+      | "rejected";
+    tosStatus: "pending" | "approved";
     isVerified: boolean;
     createdAt: Date;
   };

@@ -10,7 +10,6 @@ import {
   LogOut,
   RefreshCw,
   ExternalLink,
-  DollarSign,
   History,
   AlertCircle,
   CheckCircle2,
@@ -18,7 +17,6 @@ import {
 import { userAPI } from "../services/api";
 import { toast } from "sonner";
 import type { CardResponse, LiquidationAddress } from "@/types";
-import QRCode from "react-qr-code";
 import DepositComp from "@/components/deposit";
 import CreditCardComp from "@/components/credit-card";
 
