@@ -2,9 +2,8 @@ import type { LiquidationAddress } from "@/types";
 import { DollarSign } from "lucide-react";
 import { useEffect, useState } from "react";
 import QRCode from "react-qr-code";
-import StellarSdk from "stellar-sdk";
+import * as StellarSdk from "@stellar/stellar-sdk";
 import {
-  isConnected,
   getAddress,
   signTransaction,
   requestAccess,
@@ -19,9 +18,6 @@ const USDC_ASSET = {
 };
 
 function DepositComp({ address }: { address: LiquidationAddress | null }) {
-  const [recipientAddress, setRecipientAddress] = useState(
-    address?.address ?? ""
-  );
   const [amount, setAmount] = useState("0.1");
   const [isLoading, setIsLoading] = useState(false);
   const [status, setStatus] = useState("");
@@ -84,19 +80,30 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
       await connectFreighter();
     }
 
-    // Validation
-    if (!recipientAddress.trim()) {
-      setError("Please enter a recipient address");
+    if (!address?.address) {
+      console.log("Address is not available");
       return;
     }
 
-    if (!validateStellarAddress(recipientAddress)) {
+    // Validation
+    if (!address?.address.trim()) {
+      setError("Please enter a recipient address");
+      console.log("Recipient address is empty");
+
+      return;
+    }
+
+    if (!validateStellarAddress(address.address)) {
       setError("Invalid Stellar address format");
+      console.log("Invalid Stellar address format");
+
       return;
     }
 
     if (!amount || parseFloat(amount) <= 0) {
       setError("Please enter a valid amount");
+      console.log("Invalid amount entered");
+
       return;
     }
 
@@ -104,9 +111,12 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
 
     try {
       setStatus("Building transaction...");
+      console.log("Building transaction...");
 
       // This would be the real implementation with Stellar SDK
       const transactionResult = await createUSDCTransaction();
+
+      console.log("Transaction result:", transactionResult);
 
       setStatus(
         `Transaction successful! Hash: ${transactionResult.hash.substring(
@@ -117,7 +127,6 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
 
       // Reset form
       setAmount("");
-      setRecipientAddress("");
     } catch (err) {
       setError("Transaction failed: " + err.message);
     } finally {
@@ -126,38 +135,47 @@ function DepositComp({ address }: { address: LiquidationAddress | null }) {
   };
 
   const createUSDCTransaction = async () => {
-    const server = new StellarSdk.Server("https://horizon.stellar.org");
-    const sourceAccount = await server.loadAccount(userPublicKey);
+    try {
+      const server = new StellarSdk.Horizon.Server(
+        "https://horizon.stellar.org"
+      );
+      const sourceAccount = await server.loadAccount(userPublicKey);
 
-    const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
-      fee: StellarSdk.BASE_FEE,
-      networkPassphrase: StellarSdk.Networks.PUBLIC,
-    })
-      .addOperation(
-        StellarSdk.Operation.payment({
-          destination: recipientAddress,
-          asset: new StellarSdk.Asset(USDC_ASSET.code, USDC_ASSET.issuer),
-          amount: amount.toString(),
-        })
-      )
-      .addMemo(StellarSdk.Memo.text(address?.blockchain_memo ?? "USDC Deposit"))
-      .setTimeout(300)
-      .build();
+      const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
+        fee: StellarSdk.BASE_FEE,
+        networkPassphrase: StellarSdk.Networks.PUBLIC,
+      })
+        .addOperation(
+          StellarSdk.Operation.payment({
+            destination: address!.address,
+            asset: new StellarSdk.Asset(USDC_ASSET.code, USDC_ASSET.issuer),
+            amount: amount.toString(),
+          })
+        )
+        .addMemo(
+          StellarSdk.Memo.text(address?.blockchain_memo ?? "USDC Deposit")
+        )
+        .setTimeout(300)
+        .build();
 
-    // Convert to XDR for Freighter
-    const transactionXDR = transaction.toXDR();
+      // Convert to XDR for Freighter
+      const transactionXDR = transaction.toXDR();
 
-    const signedTransactionXDR = await signTransaction(transactionXDR, {
-      networkPassphrase: StellarSdk.Networks.PUBLIC,
-    });
+      const signedTransactionXDR = await signTransaction(transactionXDR, {
+        networkPassphrase: StellarSdk.Networks.PUBLIC,
+      });
 
-    const signedTransaction = StellarSdk.TransactionBuilder.fromXDR(
-      signedTransactionXDR,
-      StellarSdk.Networks.PUBLIC
-    );
+      const signedTransaction = StellarSdk.TransactionBuilder.fromXDR(
+        signedTransactionXDR.signedTxXdr,
+        StellarSdk.Networks.PUBLIC
+      );
 
-    const result = await server.submitTransaction(signedTransaction);
-    return result;
+      const result = await server.submitTransaction(signedTransaction);
+      return result;
+    } catch (error) {
+      console.error("Error creating USDC transaction:", error);
+      throw new Error("Failed to create USDC transaction");
+    }
   };
 
   return (
